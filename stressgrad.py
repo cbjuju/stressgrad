@@ -4,7 +4,7 @@ from odbAccess import *
 #                           SUPPORT FUNCTIONS BEGIN                            #
 ################################################################################
 
-def log(*theBits):
+def console_log(*theBits):
     """
     Function that writes a message to standard output instead of the rpy file.
     """
@@ -24,7 +24,7 @@ def get_elements_and_nodes(odbPath):
     # The entries of the following three lists contain more information than necessary
     allNodesObjects          = odb.rootAssembly.nodeSets[' ALL NODES'].nodes[0]
     allElementsObjects       = odb.rootAssembly.elementSets[' ALL ELEMENTS'].elements[0]
-    log('Objects acquired')
+    console_log('Objects acquired')
 
     # The entries of the following three lists contain only information relevant to the repair
     allNodes          = []
@@ -44,7 +44,7 @@ def get_elements_and_nodes(odbPath):
         entry       = [label, coordinates]
 
         allNodes.append(entry)
-    log('Node array created')
+    console_log('Node array created')
 
     for element in allElementsObjects:
         connectivity = list(element.connectivity)
@@ -52,7 +52,7 @@ def get_elements_and_nodes(odbPath):
         entry        = [label, connectivity]
 
         allElements.append(entry)
-    log('All element array created')
+    console_log('All element array created')
 
     return allNodes, allElements
 
@@ -64,7 +64,7 @@ def get_elements_and_nodes(odbPath):
 #                       ACTUAL POSTPROCESSING STARTING                         #
 ################################################################################
 
-odb_path = '../maath/Job.odb'
+odb_path = '/home/skunda/problems/cylinderCompression/fivePercentQuadTets/Job.odb'
 
 odb = openOdb(odb_path)
 
@@ -107,7 +107,7 @@ identifier and the remaining 6 being the stress components.
 number_of_elements = len(allElements) # Ne
 number_of_nodes    = len(allNodes)    # Nn
 
-stress_data_from_odb_for_last_frame = odb.steps['Step-1'].frames[-1].fieldOutputs['S']
+stress_data_from_odb_ = odb.steps['Step-1'].frames[-1].fieldOutputs['S']
 
 stress_data = []
 
@@ -117,10 +117,10 @@ for num in range(number_of_elements):
     element_number = num + 1
 
     # Each of the following four is a list of length 6
-    stress_at_ip1 = stress_data_from_odb_for_last_frame.values[element_number + 0].data
-    stress_at_ip2 = stress_data_from_odb_for_last_frame.values[element_number + 1].data
-    stress_at_ip3 = stress_data_from_odb_for_last_frame.values[element_number + 2].data
-    stress_at_ip4 = stress_data_from_odb_for_last_frame.values[element_number + 3].data
+    stress_at_ip1 = stress_data_from_odb_.values[element_number + 0].data
+    stress_at_ip2 = stress_data_from_odb_.values[element_number + 1].data
+    stress_at_ip3 = stress_data_from_odb_.values[element_number + 2].data
+    stress_at_ip4 = stress_data_from_odb_.values[element_number + 3].data
 
     # Building the identifiers for each integration point
     # (Works only because there are a single digit number of quadrature points)
@@ -141,22 +141,24 @@ for num in range(number_of_elements):
     stress_data.append(entry_ip3)
     stress_data.append(entry_ip4)
 
-log ('Stress data acquired.')
+console_log ('Stress data acquired.')
 
 # Stress data loaded Now get displacement data
 
 displacement_data = []
 
+displacement_data_from_odb_ = odb.steps['Step-1'].frames[-1].fieldOutputs['U']
+
 for num in range(number_of_nodes):
     node_number = num + 1
 
     if node_number % 10000 == 0:
-        log ("node_number = ", node_number)
+        console_log ("node_number = ", node_number)
 
-    displacements = odb.steps['Step-1'].frames[-1].fieldOutputs['U'].values[node_number - 1].data
+    displacements = displacement_data_from_odb_.values[node_number - 1].data
 
     entry = [node_number] + displacements
 
     displacement_data.append(entry)
 
-log(len(displacement_data))
+console_log(len(displacement_data))

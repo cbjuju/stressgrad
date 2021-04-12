@@ -64,20 +64,16 @@ def get_elements_and_nodes(odbPath):
 #                       ACTUAL POSTPROCESSING STARTING                         #
 ################################################################################
 
-odb = openOdb('Job.odb')
+odb_path = '../maath/Job.odb'
 
-allNodes, allElements = get_elements_and_nodes('Job.odb')
+odb = openOdb(odb_path)
+
+allNodes, allElements = get_elements_and_nodes(odb_path)
 
 """
 part_instance = odb.rootAssembly.instances['PART-1-1']
 
-
-1. Extract displacements
-displacement of node 1 at the end of the simulation (hence the -1)
-= odb.steps['Step-1'].frames[-1].fieldOutputs['U'].values[0].data (Gives an
-array of 3 floats)
-
-2. Extract stresses at integration points
+1. Extract stresses at integration points
 Every element has 4 integration points. So the stress values for the first
 element are :
 odb.steps['Step-1'].frames[-1].fieldOutputs['S'].values[0].data
@@ -87,6 +83,11 @@ odb.steps['Step-1'].frames[-1].fieldOutputs['S'].values[3].data
 The values for the first integration point of the 2 element is :
 odb.steps['Step-1'].frames[-1].fieldOutputs['S'].values[4].data (Gives an array
 of 6 floats)
+
+2. Extract displacements
+displacement of node 1 at the end of the simulation (hence the -1)
+= odb.steps['Step-1'].frames[-1].fieldOutputs['U'].values[0].data (Gives an
+array of 3 floats)
 
 3. Generate an array that contains the integration points and the stresses at
 those points
@@ -122,6 +123,7 @@ for num in range(number_of_elements):
     stress_at_ip4 = stress_data_from_odb_for_last_frame.values[element_number + 3].data
 
     # Building the identifiers for each integration point
+    # (Works only because there are a single digit number of quadrature points)
     id_ip1 = element_number * 10 + 1
     id_ip2 = element_number * 10 + 2
     id_ip3 = element_number * 10 + 3
@@ -138,3 +140,23 @@ for num in range(number_of_elements):
     stress_data.append(entry_ip2)
     stress_data.append(entry_ip3)
     stress_data.append(entry_ip4)
+
+log ('Stress data acquired.')
+
+# Stress data loaded Now get displacement data
+
+displacement_data = []
+
+for num in range(number_of_nodes):
+    node_number = num + 1
+
+    if node_number % 10000 == 0:
+        log ("node_number = ", node_number)
+
+    displacements = odb.steps['Step-1'].frames[-1].fieldOutputs['U'].values[node_number - 1].data
+
+    entry = [node_number] + displacements
+
+    displacement_data.append(entry)
+
+log(len(displacement_data))

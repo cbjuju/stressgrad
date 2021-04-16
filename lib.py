@@ -118,3 +118,33 @@ def get_displacement_data(odb, number_of_nodes):
     console_log ('Displacement data acquired')
 
     return displacement_data
+
+def get_final_nodal_coordinates(all_nodes, displacement_data, number_of_nodes):
+    
+    final_nodal_coordinates = []
+
+    for num in range(number_of_nodes):
+        node_number = all_nodes[num][0] + 1
+
+        x, y, z = all_nodes[num][1:4]
+        
+        u, v, w = displacement_data[num][1:4]
+
+        final_coordinates = [x + u, y + v, z + w]
+
+        entry = [node_number] + final_coordinates
+
+        final_coordinates.append(entry)
+
+    console_log (x, ' ', y, ' ', z)
+    console_log (u, ' ', v, ' ', w)
+
+    console_log (entry[1:])
+
+    console_log ('Final coordinates calculated')
+
+    return final_nodal_coordinates
+
+get_intpt_coordinates(all_elements, number_of_elements, final_nodal_coordinates, number_of_nodes)
+
+    return intpt_coordinates 

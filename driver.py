@@ -47,4 +47,6 @@ stress_data = get_stress_data(odb, number_of_elements)
 
 displacement_data = get_displacement_data(odb, number_of_nodes)
 
-final_nodal_coordinates = get_final_nodal_coordinats(all_nodes, displacement_data, number_of_nodes)
+final_nodal_coordinates = get_final_nodal_coordinates(all_nodes, displacement_data, number_of_nodes)
+
+intpt_coordinates = get_intpt_coordinates(all_elements, number_of_elements, final_nodal_coordinates, number_of_nodes)
